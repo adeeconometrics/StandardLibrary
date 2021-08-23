@@ -10,14 +10,16 @@
  */
 
 #pragma once
-#include "shared_reference.h"
+#include "SharedReference.h"
 
 template <typename T> class weak_reference {
   T *m_ptr{nullptr};
-  shared_reference<T> handle;
+  SharedReference
+<T> handle;
 
 public:
-  explicit weak_reference(shared_reference<T> &i_ptr)
+  explicit weak_reference(SharedReference
+<T> &i_ptr)
       : m_ptr(i_ptr.get()), handle(i_ptr) {
     i_ptr.suppress_increment();
   }

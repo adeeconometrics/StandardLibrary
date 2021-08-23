@@ -10,10 +10,10 @@
  */
 
 #pragma once
-#include "weak_reference.h"
+#include "WeakReference.h"
 
 template <typename T> class shared_reference {
-  template <typename> friend class weak_reference;
+  template <typename> friend class WeakReference;
   static size_t m_counter;
   T *m_ptr;
 
