@@ -1,0 +1,3 @@
+Checks: "clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,-extra-arg=-c++20, modernize-use-trailing-return-type"
+WarningsAsErrors: true
+AnalyzeTemporaryDtors: false
