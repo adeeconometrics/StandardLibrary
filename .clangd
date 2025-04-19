@@ -1,0 +1,14 @@
+{
+  "CompileFlags": {
+    "cpp": [
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-pedantic",
+      "-Wno-c++98-compat",
+      "-Wno-c++98-compat-pedantic",
+      "-Wno-unused-macros",
+      "-Wno-documentation-unknown-command"
+    ]
+  }
+}

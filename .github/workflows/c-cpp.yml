@@ -1,0 +1,60 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: git
+        run: git --version
+      - name: configure
+        run: |
+          sudo apt-get install make cmake build-essential libomp-dev doxygen
+          pip3 install sphinx
+          pip3 install breathe
+          pip3 install pydata-sphinx-theme
+          pip3 install sphinx-sitemap
+      - name: gtest
+        run: |
+          sudo apt-get install libgtest-dev
+          cd ${{github.workspace}} 
+          mkdir lib
+          cd lib
+          git clone https://github.com/google/googletest.git 
+          cd googletest  
+          mkdir build 
+          cd build 
+          cmake ../  
+          make
+      - name: build
+        run: |
+          cd ${{github.workspace}} 
+          mkdir build
+          cd build 
+          cmake ../ 
+          make
+      - name: test
+        run: |
+          cd ${{github.workspace}}/build 
+          ctest --output-on-failure --verbose
+      - name: checout repo
+        uses: actions/checkout@1.0.0
+      - name: build docs
+        run: |
+          cd docs_sphinx
+          doxygen Doxyfile.in
+          make html
+          cd _build/html
+          touch .nojekyll
+      - name: deploy docs
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: docs_sphinx/_build/html # The folder the action should deploy.

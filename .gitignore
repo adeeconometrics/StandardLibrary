@@ -1,0 +1,17 @@
+.github/*
+.vscode/
+lib/
+build/
+venv/
+bin/
+docs_sphinx/_build/
+docs_sphinx/_static/
+docs_sphinx/_templates/
+docs_sphinx/html
+docs_sphinx/latex
+docs_sphinx/xml
+*/**.o
+*.**.exe
+
+
+!.github/workflows
