@@ -1,12 +1,6 @@
 #ifndef ARRAY_HPP
 #define ARRAY_HPP
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#pragma clang diagnostic ignored "-Wunused-macros"
-#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
-
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
@@ -239,5 +233,4 @@ private:
     }
 };
 
-#pragma clang diagnostic pop
 #endif // ARRAY_HPP
