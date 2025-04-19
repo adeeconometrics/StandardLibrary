@@ -1,5 +1,5 @@
-#ifndef ARRAY_HPP
-#define ARRAY_HPP
+#ifndef __ARRAY_HPP__
+#define __ARRAY_HPP__
 
 #include <algorithm>
 #include <initializer_list>
@@ -8,109 +8,134 @@
 #include <type_traits>
 #include <utility>
 
-template <typename ArrayType>
+/**
+ * @brief Bidirectional iterator for Array container
+ * 
+ * @tparam ArrayType The array container type this iterator is for
+ * 
+ * @requires ArrayType must have value_type defined
+ */
+template<typename ArrayType>
 class Array_Iterator {
 public:
     using value_type = typename ArrayType::value_type;
-    using pointer_type = value_type*;
-    using reference_type = value_type&;
+    using pointer = value_type*;
+    using reference = value_type&;
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::bidirectional_iterator_tag;
 
 public:
-    explicit Array_Iterator(pointer_type ptr) : m_ptr(ptr) {}
+    constexpr explicit Array_Iterator(pointer ptr) noexcept : m_ptr(ptr) {}
 
-    Array_Iterator& operator++() {
+    auto operator++() noexcept -> Array_Iterator& {
         m_ptr++;
         return *this;
     }
 
-    Array_Iterator operator++(int) {
+    auto operator++(int) noexcept -> Array_Iterator {
         Array_Iterator temp = *this;
         ++(*this);
         return temp;
     }
 
-    Array_Iterator& operator--() {
+    auto operator--() noexcept -> Array_Iterator& {
         m_ptr--;
         return *this;
     }
 
-    Array_Iterator operator--(int) {
+    auto operator--(int) noexcept -> Array_Iterator {
         Array_Iterator temp = *this;
         --(*this);
         return temp;
     }
 
-    reference_type operator[](int index) { return m_ptr[index]; }
-    reference_type operator*() { return *m_ptr; }
-    pointer_type operator->() { return m_ptr; }
+    [[nodiscard]] auto operator[](difference_type index) noexcept -> reference { 
+        return m_ptr[index]; 
+    }
+    
+    [[nodiscard]] auto operator*() noexcept -> reference { 
+        return *m_ptr; 
+    }
+    
+    [[nodiscard]] auto operator->() noexcept -> pointer { 
+        return m_ptr; 
+    }
 
-    bool operator==(const Array_Iterator& other) const {
+    [[nodiscard]] auto operator==(const Array_Iterator& other) const noexcept -> bool {
         return m_ptr == other.m_ptr;
     }
 
-    bool operator!=(const Array_Iterator& other) const {
+    [[nodiscard]] auto operator!=(const Array_Iterator& other) const noexcept -> bool {
         return !(*this == other);
     }
 
 private:
-    pointer_type m_ptr;
+    pointer m_ptr{nullptr};
 };
 
 /**
- * @brief Const iterator class for Array container
+ * @brief Const bidirectional iterator for Array container
  * 
  * @tparam ArrayType The array container type this const iterator is for
+ * 
+ * @requires ArrayType must have value_type defined
  */
-template <typename ArrayType>
+template<typename ArrayType>
 class cArray_Iterator {
 public:
     using value_type = typename ArrayType::value_type;
-    using pointer_type = const value_type*;
-    using reference_type = const value_type&;
+    using pointer = const value_type*;
+    using reference = const value_type&;
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::bidirectional_iterator_tag;
 
 public:
-    explicit cArray_Iterator(pointer_type ptr) : m_ptr(ptr) {}
+    constexpr explicit cArray_Iterator(pointer ptr) noexcept : m_ptr(ptr) {}
 
-    cArray_Iterator& operator++() {
+    auto operator++() noexcept -> cArray_Iterator& {
         m_ptr++;
         return *this;
     }
 
-    cArray_Iterator operator++(int) {
+    auto operator++(int) noexcept -> cArray_Iterator {
         cArray_Iterator temp = *this;
         ++(*this);
         return temp;
     }
 
-    cArray_Iterator& operator--() {
+    auto operator--() noexcept -> cArray_Iterator& {
         m_ptr--;
         return *this;
     }
 
-    cArray_Iterator operator--(int) {
+    auto operator--(int) noexcept -> cArray_Iterator {
         cArray_Iterator temp = *this;
         --(*this);
         return temp;
     }
 
-    reference_type operator[](int index) const { return m_ptr[index]; }
-    reference_type operator*() const { return *m_ptr; }
-    pointer_type operator->() const { return m_ptr; }
+    [[nodiscard]] auto operator[](difference_type index) const noexcept -> reference { 
+        return m_ptr[index]; 
+    }
+    
+    [[nodiscard]] auto operator*() const noexcept -> reference { 
+        return *m_ptr; 
+    }
+    
+    [[nodiscard]] auto operator->() const noexcept -> pointer { 
+        return m_ptr; 
+    }
 
-    bool operator==(const cArray_Iterator& other) const {
+    [[nodiscard]] auto operator==(const cArray_Iterator& other) const noexcept -> bool {
         return m_ptr == other.m_ptr;
     }
 
-    bool operator!=(const cArray_Iterator& other) const {
+    [[nodiscard]] auto operator!=(const cArray_Iterator& other) const noexcept -> bool {
         return !(*this == other);
     }
 
 private:
-    pointer_type m_ptr;
+    pointer m_ptr{nullptr};
 };
 
 /**
@@ -120,8 +145,16 @@ private:
  * @tparam Size The fixed size of the array, must be > 0
  * 
  * @requires ValueType must be default constructible
+ * 
+ * Complexity guarantees:
+ * - operator[]: O(1)
+ * - add(): O(1)
+ * - size(): O(1)
+ * - empty(): O(1)
+ * - begin(), end(): O(1)
+ * - cbegin(), cend(): O(1)
  */
-template <
+template<
     typename ValueType,
     size_t Size,
     typename = std::enable_if_t<(Size > 0)>,
@@ -142,18 +175,14 @@ private:
     size_type m_index{0};
 
 public:
-    explicit Array() {
-        if (Size == 0) {
-            throw std::length_error("Array size must be positive");
-        }
-
-        m_ptr = new value_type[Size]();
+    constexpr explicit Array() {
+        m_ptr = new value_type[Size]{};
     }
 
     explicit Array(const Array& other) {
-        m_ptr = new value_type[other.size()];
+        m_ptr = new value_type[Size];
         m_size = other.size();
-        std::copy(other.begin(), other.end(), m_ptr);
+        std::copy(other.cbegin(), other.cend(), m_ptr);
     }
 
     explicit Array(Array&& other) noexcept {
@@ -164,10 +193,29 @@ public:
         if (list.size() > Size) {
             throw std::length_error("Initializer list size exceeds array capacity");
         }
-
-        m_ptr = new value_type[Size]();
+        m_ptr = new value_type[Size]{};
         std::copy(list.begin(), list.end(), m_ptr);
         m_index = list.size();
+    }
+
+    auto operator=(const Array& other) -> Array& {
+        Array temp(other);
+        swap(temp);
+        return *this;
+    }
+
+    auto operator=(Array&& other) noexcept -> Array& {
+        swap(other);
+        return *this;
+    }
+
+    auto operator=(std::initializer_list<value_type> list) -> Array& {
+        if (list.size() > Size) {
+            throw std::length_error("Initializer list size exceeds array capacity");
+        }
+        std::copy(list.begin(), list.end(), m_ptr);
+        m_index = list.size();
+        return *this;
     }
 
     ~Array() {
@@ -175,62 +223,42 @@ public:
         m_ptr = nullptr;
     }
 
-    Array& operator=(const Array& other) {
-        Array copy(other);
-        swap(copy);
-        return *this;
-    }
-
-    Array& operator=(Array&& other) noexcept {
-        swap(other);
-        return *this;
-    }
-
-    Array& operator=(std::initializer_list<value_type> list) {
-        if (list.size() > Size) {
-            throw std::length_error("Initializer list size exceeds array capacity");
-        }
-
-        std::copy(list.begin(), list.end(), m_ptr);
-        m_index = list.size();
-        return *this;
-    }
-
-    const_reference operator[](size_type idx) const {
+    [[nodiscard]] auto operator[](size_type idx) const -> const_reference {
         if (idx >= Size) {
             throw std::out_of_range("Array index out of bounds");
         }
         return m_ptr[idx];
     }
 
-    reference operator[](size_type idx) {
+    [[nodiscard]] auto operator[](size_type idx) -> reference {
         if (idx >= Size) {
             throw std::out_of_range("Array index out of bounds");
         }
         return m_ptr[idx];
     }
 
-    void add(const value_type& element) {
+    auto add(const value_type& element) -> void {
         if (m_index >= Size) {
             throw std::length_error("Array is full");
         }
         m_ptr[m_index++] = element;
     }
 
-    [[nodiscard]] constexpr size_type size() const noexcept { return Size; }
-    [[nodiscard]] bool empty() const noexcept { return Size == 0; }
+    [[nodiscard]] constexpr auto size() const noexcept -> size_type { return Size; }
+    [[nodiscard]] auto empty() const noexcept -> bool { return Size == 0; }
 
-    iterator begin() noexcept { return iterator(m_ptr); }
-    iterator end() noexcept { return iterator(m_ptr + Size); }
-    const_iterator cbegin() const noexcept { return const_iterator(m_ptr); }
-    const_iterator cend() const noexcept { return const_iterator(m_ptr + Size); }
+    [[nodiscard]] auto begin() noexcept -> iterator { return iterator(m_ptr); }
+    [[nodiscard]] auto end() noexcept -> iterator { return iterator(m_ptr + Size); }
+    [[nodiscard]] auto cbegin() const noexcept -> const_iterator { return const_iterator(m_ptr); }
+    [[nodiscard]] auto cend() const noexcept -> const_iterator { return const_iterator(m_ptr + Size); }
 
 private:
-    void swap(Array& other) noexcept {
-        std::swap(m_ptr, other.m_ptr);
-        std::swap(m_size, other.m_size);
-        std::swap(m_index, other.m_index);
+    auto swap(Array& other) noexcept -> void {
+        using std::swap;
+        swap(m_ptr, other.m_ptr);
+        swap(m_size, other.m_size);
+        swap(m_index, other.m_index);
     }
 };
 
-#endif // ARRAY_HPP
+#endif // __ARRAY_HPP__
