@@ -1,11 +1,11 @@
 enable_testing()
 
-add_executable(array_test array_test.cpp)
-target_link_libraries(array_test
+add_executable(test_array test_array.cpp)
+target_link_libraries(test_array
     PRIVATE
-    array_lib
+    standard_lib
     gtest
     gtest_main
 )
 
-add_test(NAME array_test COMMAND array_test)
+add_test(NAME test_array COMMAND test_array)

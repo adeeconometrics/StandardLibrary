@@ -19,12 +19,12 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra -pedantic")
 
 # Add library target
-add_library(array_lib INTERFACE)
-target_include_directories(array_lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(standard_lib INTERFACE)
+target_include_directories(standard_lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Add main executable
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE array_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE standard_lib)
 
 # Add GoogleTest
 add_subdirectory(lib/googletest)
