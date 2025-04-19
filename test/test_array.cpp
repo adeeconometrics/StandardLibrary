@@ -1,4 +1,4 @@
-#include <Array.hpp>
+#include "../include/Array.hpp"
 #include <gtest/gtest.h>
 
 class ArrayTest : public ::testing::Test {
