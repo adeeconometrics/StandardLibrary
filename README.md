@@ -1,73 +1,85 @@
-
 # C++ Standard Library Reimplementation Project
  
 ## About the Repo
 
-I intend to make this project serve as a repository to deconstruct and re-build the C++ standard template library to deeply understand the design space and find opportunities to experiment with different design morphications.
+This project serves as a comprehensive reimplementation of the C++ Standard Template Library (STL) components using modern C++17 features. The goal is to deeply understand the design space and experiment with different implementation strategies.
 
-This project aims to deconstruct and re-implement the C++ Standard Template Library (STL) from first principles. Our goal is not to replace the STL, but rather to:
-    - Deeply understand the design decisions behind the C++ STL
-    - Explore alternative implementation strategies
-    - Experiment with different design trade-offs
-    - Serve as an educational resource for C++ developers
+## Project Goals
+
+- Implement STL components with modern C++17 features
+- Explore template metaprogramming techniques
+- Provide clear, well-documented implementations
+- Experiment with different design trade-offs
+- Serve as an educational resource for C++ developers
 
 ## Disclaimer
 
 This project is for educational and experimental purposes only. It is not intended for production use. The implementations here may prioritize clarity and experimentation over performance optimizations found in standard library implementations.
 
 ## Project Structure
-    - `src/`: Implementation of core components
-    - `DataStructures/`: Fundamental data structure implementations
-    - `Iterators/`: Iterator abstractions and implementations
-    - `ReferenceManager/`: Smart pointer and memory management utilities
-    - `TypeSupport/`: Type system utilities and enhancements
-    - `doc/`: Design documents and specifications
-    - `tests/`: Comprehensive test suites
+- `src/`: Core implementation
+  - `DataStructures/`: Container implementations
+  - `Iterators/`: Iterator implementations
+- `docs_sphinx/`: API documentation
+- `tests/`: Unit test suites
+- `doc/`: Design documents
 
+## Technical Requirements
 
-## Contribution Guidelines
+1. **Language Standards**:
+   - C++17 compliant
+   - No STL containers (except std::string, std::except)
+   - Custom implementation of smart pointers and iterators
 
-1. **Code Style**:
-    - Follow the C++ Core Guidelines.
-    - Use consistent indentation and naming conventions: `snake_case` for functions and `PascalCase` for class names.
-    - Use the C++17 tailed return types for readability. 
+2. **Implementation Guidelines**:
+   - Use raw pointers only for iterator/smart pointer implementation
+   - Follow RAII principles
+   - Implement move semantics
+   - Use constexpr where possible
+   - Proper const correctness
 
-2. **Testing**:
-    - Write unit tests for all new features.
-    - Use a testing framework like Google Test or Catch2.
+3. **Templates**:
+   - Type-safe generic containers
+   - SFINAE for template constraints
+   - Modern template metaprogramming techniques
 
-3. **Documentation**:
-    - Document all public APIs using Doxygen-style comments.
-    - Provide examples where applicable.
+## Documentation
 
-4. **Pull Requests**:
-    - Ensure your branch is up-to-date with the main branch.
-    - Provide a clear description of the changes made.
+API documentation is built using:
+- Doxygen for C++ code documentation
+- Sphinx for generating HTML documentation
+- Breathe for Doxygen/Sphinx integration
 
-## Getting Started
+To build documentation:
+```bash
+cd docs_sphinx
+make html
+```
 
-1. Clone the repository:
-    ```bash
-    git clone <repository-url>
-    cd StandardLibrary
-    ```
+## Building the Project
 
-2. Build the project:
-    ```bash
-    mkdir build
-    cd build
-    cmake ..
-    make
-    ```
+1. Clone and setup:
+```bash
+git clone <repository-url>
+cd StandardLibrary
+```
+
+2. Build:
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
 
 3. Run tests:
-    ```bash
-    ./run_tests
-    ```
+```bash
+./run_tests
+```
 
-## Directory Structure
+## Contributing
 
-- `src/`: Contains the source code.
-- `include/`: Contains header files.
-- `tests/`: Contains unit tests.
-- `docs/`: Contains project documentation.
+See [CONTRIBUTING.md] for detailed guidelines on:
+- Coding standards
+- Documentation requirements
+- Testing requirements
+- Pull request process
