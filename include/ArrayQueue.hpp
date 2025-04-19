@@ -207,7 +207,7 @@ public:
         if (is_full()) {
             throw std::length_error("Queue is full");
         }
-        size_type rear = (m_front + m_count) % Size;
+        const size_type rear = (m_front + m_count) % Size;
         m_ptr[rear] = element;
         ++m_count;
     }
@@ -216,7 +216,7 @@ public:
         if (is_empty()) {
             throw std::out_of_range("Queue is empty");
         }
-        m_ptr[m_front] = value_type();
+        m_ptr[m_front] = value_type(); // reinitialize front to default type constructor
         m_front = (m_front + 1) % Size;
         --m_count;
     }
@@ -258,11 +258,10 @@ public:
 
 private:
     auto swap(ArrayQueue& other) noexcept -> void {
-        using std::swap;
-        swap(m_ptr, other.m_ptr);
-        swap(m_size, other.m_size);
-        swap(m_front, other.m_front);
-        swap(m_count, other.m_count);
+        std::swap(m_ptr, other.m_ptr);
+        std::swap(m_size, other.m_size);
+        std::swap(m_front, other.m_front);
+        std::swap(m_count, other.m_count);
     }
 };
 
