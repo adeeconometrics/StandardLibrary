@@ -1,4 +1,6 @@
 .github/*
+.cache/
+.mypy_cache/
 .vscode/
 lib/
 build/
