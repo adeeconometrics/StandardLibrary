@@ -45,7 +45,7 @@ TEST_F(ArrayDequeTest, CopyConstructor_CreatesDeepCopy) {
     EXPECT_NE(copy.size(), deque.size());
 }
 
-TEST_F(ArrayDequeTest, MoveConstructor_TransfersOwnership) {
+TEST_F(ArrayDequeTest, MoveConstructorTransfersOwnership) {
     deque.push_back(1);
     deque.push_back(2);
     
@@ -53,7 +53,7 @@ TEST_F(ArrayDequeTest, MoveConstructor_TransfersOwnership) {
     EXPECT_EQ(moved.size(), 2);
     EXPECT_EQ(moved.front(), 1);
     EXPECT_EQ(moved.back(), 2);
-    EXPECT_TRUE(deque.empty());
+    EXPECT_TRUE(deque.empty()); // since the moved property was swapped it's been emptied out
 }
 
 // Category 2: Core Operations Tests
@@ -179,52 +179,56 @@ TEST_F(ArrayDequeTest, CircularBuffer_HandlesWraparound) {
 }
 
 // Category 5: Type Requirements Tests
-// TEST_F(ArrayDequeTest, CustomType_SupportsComplexTypes) {
-//     struct TestType {
-//         int value;
-//         explicit TestType(int v) : value(v) {}
-//         bool operator==(const TestType& other) const { return value == other.value; }
-//     };
+TEST_F(ArrayDequeTest, CustomType_SupportsComplexTypes) {
+    struct TestType {
+        int value;
+        TestType() = default;
+        explicit TestType(int v) : value(v) {}
+        bool operator==(const TestType& other) const { return value == other.value; }
+    };
 
-//     ArrayDeque<TestType, 3> custom_deque;
-//     EXPECT_NO_THROW(custom_deque.push_back(TestType{1}));
-//     EXPECT_NO_THROW(custom_deque.push_front(TestType{2}));
-//     EXPECT_EQ(custom_deque.front().value, 2);
-//     EXPECT_EQ(custom_deque.back().value, 1);
-// }
+    ArrayDeque<TestType, 3> custom_deque;
+    EXPECT_NO_THROW(custom_deque.push_back(TestType{1}));
+    EXPECT_NO_THROW(custom_deque.push_front(TestType{2}));
+    EXPECT_EQ(custom_deque.front().value, 2);
+    EXPECT_EQ(custom_deque.back().value, 1);
+}
 
-// TEST_F(ArrayDequeTest, MoveOnlyType_SupportsMovableTypes) {
-//     struct MoveOnly {
-//         int value;
-//         explicit MoveOnly(int v) : value(v) {}
-//         MoveOnly(const MoveOnly&) = delete;
-//         MoveOnly& operator=(const MoveOnly&) = delete;
-//         MoveOnly(MoveOnly&&) = default;
-//         MoveOnly& operator=(MoveOnly&&) = default;
-//     };
+TEST_F(ArrayDequeTest, MoveOnlyType_SupportsMovableTypes) {
+    struct MoveOnly {
+        int value;
+        
+        MoveOnly() = default;
+        explicit MoveOnly(int v) : value(v) {}
+        MoveOnly(const MoveOnly&) = delete;
+        MoveOnly& operator=(const MoveOnly&) = delete;
+        MoveOnly(MoveOnly&&) = default;
+        MoveOnly& operator=(MoveOnly&&) = default;
+    };
 
-//     ArrayDeque<MoveOnly, 3> move_deque;
-//     EXPECT_NO_THROW(move_deque.push_back(MoveOnly{1}));
-//     EXPECT_NO_THROW(move_deque.push_front(MoveOnly{2}));
-//     EXPECT_EQ(move_deque.front().value, 2);
-//     EXPECT_EQ(move_deque.back().value, 1);
-// }
+    ArrayDeque<MoveOnly, 3> move_deque;
+    EXPECT_NO_THROW(move_deque.push_back(MoveOnly{1}));
+    EXPECT_NO_THROW(move_deque.push_front(MoveOnly{2}));
+    EXPECT_EQ(move_deque.front().value, 2);
+    EXPECT_EQ(move_deque.back().value, 1);
+}
 
-// TEST_F(ArrayDequeTest, EmplaceOperations_ConstructsInPlace) {
-//     struct Empaceable {
-//         int x, y;
-//         Empaceable(int x_, int y_) : x(x_), y(y_) {}
-//     };
+TEST_F(ArrayDequeTest, EmplaceOperations_ConstructsInPlace) {
+    struct Empaceable {
+        int x, y;
+        Empaceable() = default;
+        Empaceable(int x_, int y_) : x(x_), y(y_) {}
+    };
 
-//     ArrayDeque<Empaceable, 3> emplace_deque;
-//     EXPECT_NO_THROW(emplace_deque.emplace_back(1, 2));
-//     EXPECT_NO_THROW(emplace_deque.emplace_front(3, 4));
+    ArrayDeque<Empaceable, 3> emplace_deque;
+    EXPECT_NO_THROW(emplace_deque.emplace_back(1, 2));
+    EXPECT_NO_THROW(emplace_deque.emplace_front(3, 4));
     
-//     EXPECT_EQ(emplace_deque.front().x, 3);
-//     EXPECT_EQ(emplace_deque.front().y, 4);
-//     EXPECT_EQ(emplace_deque.back().x, 1);
-//     EXPECT_EQ(emplace_deque.back().y, 2);
-// }
+    EXPECT_EQ(emplace_deque.front().x, 3);
+    EXPECT_EQ(emplace_deque.front().y, 4);
+    EXPECT_EQ(emplace_deque.back().x, 1);
+    EXPECT_EQ(emplace_deque.back().y, 2);
+}
 
 // Additional Tests for Complete Coverage
 TEST_F(ArrayDequeTest, AssignmentOperator_CopiesElements) {

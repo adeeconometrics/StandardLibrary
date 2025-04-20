@@ -37,13 +37,6 @@ public:
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::bidirectional_iterator_tag;
 
-private:
-    pointer m_ptr{nullptr};         // Current element pointer
-    pointer m_begin{nullptr};       // Start of buffer
-    pointer m_end{nullptr};         // End of buffer
-    size_t m_index{0};             // Current logical index
-    size_t m_size{0};              // Size of deque
-
 public:
     constexpr ArrayDeque_Iterator(pointer ptr, pointer begin, pointer end, size_t index, size_t size) noexcept 
         : m_ptr(ptr), m_begin(begin), m_end(end), m_index(index), m_size(size) {}
@@ -90,6 +83,13 @@ public:
     auto operator!=(const ArrayDeque_Iterator& other) const noexcept -> bool {
         return !(*this == other);
     }
+
+private:
+    pointer m_ptr{nullptr};         // Current element pointer
+    pointer m_begin{nullptr};       // Start of buffer
+    pointer m_end{nullptr};         // End of buffer
+    size_t m_index{0};             // Current logical index
+    size_t m_size{0};              // Size of deque
 };
 
 /**
@@ -103,13 +103,6 @@ public:
     using reference = const value_type&;
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::bidirectional_iterator_tag;
-
-private:
-    pointer m_ptr{nullptr};
-    pointer m_begin{nullptr};
-    pointer m_end{nullptr};
-    size_t m_index{0};
-    size_t m_size{0};
 
 public:
     constexpr cArrayDeque_Iterator(pointer ptr, pointer begin, pointer end, size_t index, size_t size) noexcept 
@@ -157,6 +150,13 @@ public:
     auto operator!=(const cArrayDeque_Iterator& other) const noexcept -> bool {
         return !(*this == other);
     }
+
+private:
+    pointer m_ptr{nullptr};
+    pointer m_begin{nullptr};
+    pointer m_end{nullptr};
+    size_t m_index{0};
+    size_t m_size{0};
 };
 
 /**
@@ -189,7 +189,8 @@ template<
     typename = std::enable_if_t<(Size > 0)>,
     typename = std::enable_if_t<
         std::is_default_constructible_v<ValueType> &&
-        std::is_copy_constructible_v<ValueType>
+        (std::is_copy_constructible_v<ValueType> ||
+         std::is_move_constructible_v<ValueType>)
     >
 >
 class ArrayDeque {
@@ -207,23 +208,8 @@ public:
     static_assert(Size > 0, "Deque size must be greater than 0");
     static_assert(std::is_default_constructible_v<ValueType>,
                  "ValueType must be default constructible");
-    static_assert(std::is_copy_constructible_v<ValueType>,
+    static_assert(std::is_copy_constructible_v<ValueType> || std::is_move_constructible_v<ValueType>,
                  "ValueType must be copy constructible");
-
-private:
-    pointer m_data{nullptr};
-    size_type m_front{0};
-    size_type m_back{0};
-    size_type m_count{0};
-
-    // Helper functions for index management
-    [[nodiscard]] auto next_index(size_type index) const noexcept -> size_type {
-        return (index + 1) % Size;
-    }
-
-    [[nodiscard]] auto prev_index(size_type index) const noexcept -> size_type {
-        return (index + Size - 1) % Size;
-    }
 
 public:
     constexpr ArrayDeque() {
@@ -407,6 +393,21 @@ private:
         swap(m_front, other.m_front);
         swap(m_back, other.m_back);
         swap(m_count, other.m_count);
+    }
+
+private:
+    pointer m_data{nullptr};
+    size_type m_front{0};
+    size_type m_back{0};
+    size_type m_count{0};
+
+    // Helper functions for index management
+    [[nodiscard]] auto next_index(size_type index) const noexcept -> size_type {
+        return (index + 1) % Size;
+    }
+
+    [[nodiscard]] auto prev_index(size_type index) const noexcept -> size_type {
+        return (index + Size - 1) % Size;
     }
 };
 
