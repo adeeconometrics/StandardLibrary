@@ -32,34 +32,37 @@ private:
 
 public:
     constexpr explicit DoublyList_Iterator(node_pointer ptr = nullptr) noexcept 
-        : m_ptr(ptr) {}    
-
-    auto operator++() noexcept -> DoublyList_Iterator& {
-        if (m_ptr != nullptr) {
-            m_ptr = m_ptr->next;
+        : m_ptr(ptr) {}    auto operator++() -> DoublyList_Iterator& {
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot increment end iterator");
         }
+        m_ptr = m_ptr->next;
         return *this;
-    }    
+    }
     
-    auto operator++(int) noexcept -> DoublyList_Iterator {
+    auto operator++(int) -> DoublyList_Iterator {
         DoublyList_Iterator temp = *this;
         ++(*this);
         return temp;
-    }    
+    }        
     
     auto operator--() -> DoublyList_Iterator& {
         if (m_ptr == nullptr) {
-            throw std::out_of_range("Cannot decrement end iterator");
+            throw std::out_of_range("Cannot decrement end iterator - the list is empty");
+        }
+        // If we're at the beginning, we can't go back further
+        if (m_ptr->prev == nullptr) {
+            throw std::out_of_range("Cannot decrement begin iterator");
         }
         m_ptr = m_ptr->prev;
         return *this;
     }
 
-    auto operator--(int) noexcept -> DoublyList_Iterator {
+    auto operator--(int) -> DoublyList_Iterator {
         auto temp = *this;
         --(*this);
         return temp;
-    }    
+    }
     
     auto operator*() const -> reference { 
         if (m_ptr == nullptr) {
@@ -104,28 +107,35 @@ private:
 
 public:
     constexpr explicit cDoublyList_Iterator(node_pointer ptr = nullptr) noexcept 
-        : m_ptr(ptr) {}    auto operator++() noexcept -> cDoublyList_Iterator& {
-        if (m_ptr != nullptr) {
-            m_ptr = m_ptr->next;
+        : m_ptr(ptr) {}    
+    
+    auto operator++() -> cDoublyList_Iterator& {
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot increment end iterator");
         }
+        m_ptr = m_ptr->next;
         return *this;
     }
 
-    auto operator++(int) noexcept -> cDoublyList_Iterator {
+    auto operator++(int) -> cDoublyList_Iterator {
         cDoublyList_Iterator temp = *this;
         ++(*this);
         return temp;
-    }
-
+    }    
+    
     auto operator--() -> cDoublyList_Iterator& {
         if (m_ptr == nullptr) {
-            throw std::out_of_range("Cannot decrement end iterator");
+            throw std::out_of_range("Cannot decrement end iterator - the list is empty");
+        }
+        // If we're at the beginning, we can't go back further
+        if (m_ptr->prev == nullptr) {
+            throw std::out_of_range("Cannot decrement begin iterator");
         }
         m_ptr = m_ptr->prev;
         return *this;
     }
 
-    auto operator--(int) noexcept -> cDoublyList_Iterator {
+    auto operator--(int) -> cDoublyList_Iterator {
         auto temp = *this;
         --(*this);
         return temp;
@@ -266,6 +276,7 @@ public:    constexpr DoublyList() noexcept = default;
         }
         ++m_size;
     }
+
     auto remove(const T& data) -> void {
         if (is_empty()) {
             throw std::out_of_range("Cannot remove from empty list");
