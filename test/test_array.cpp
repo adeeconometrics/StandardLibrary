@@ -21,9 +21,7 @@ TEST_F(ArrayTest, InitializerListConstructor) {
 }
 
 TEST_F(ArrayTest, CopyConstructor) {
-    Array<int, 3> array1;
-    array1.add(1);
-    array1.add(2);
+    Array<int, 3> array1 {1,2};
     
     Array<int, 3> array2(array1);
     EXPECT_EQ(array2[0], 1);
@@ -82,10 +80,7 @@ TEST_F(ArrayTest, AddAndAccessElements) {
 }
 
 TEST_F(ArrayTest, IteratorTraversal) {
-    Array<int, 3> array;
-    array.add(1);
-    array.add(2);
-    array.add(3);
+    Array<int, 3> array {1,2,3};
     
     int expected = 1;
     for (const auto& value : array) {
@@ -94,10 +89,7 @@ TEST_F(ArrayTest, IteratorTraversal) {
 }
 
 TEST_F(ArrayTest, ConstIteratorTraversal) {
-    Array<int, 3> array;
-    array.add(1);
-    array.add(2);
-    array.add(3);
+    Array<int, 3> array {1,2,3};
     
     const Array<int, 3>& const_array = array;
     int expected = 1;
@@ -131,4 +123,58 @@ TEST_F(ArrayTest, SFINAEConstraints) {
     // These should not compile (tested through static_assert):
     // Array<int, 0> zero_size_array;  // Size must be > 0
     // Array<void, 1> void_type_array; // Type must be default constructible
+}
+
+TEST_F(ArrayTest, ModifyThroughIterator) {
+    Array<int, 3> array{1, 2, 3};
+    
+    // Modify through iterator
+    for (auto& value : array) {
+        value *= 2;
+    }
+    
+    EXPECT_EQ(array[0], 2);
+    EXPECT_EQ(array[1], 4);
+    EXPECT_EQ(array[2], 6);
+}
+
+TEST_F(ArrayTest, SizeConsistency) {
+    Array<int, 3> array;
+    
+    EXPECT_EQ(array.size(), 3);
+    
+    array.add(1);
+    EXPECT_EQ(array.size(), 3);  // Size should remain constant for Array
+    
+    array.add(2);
+    array.add(3);
+    EXPECT_EQ(array.size(), 3);
+}
+
+TEST_F(ArrayTest, BoundsChecking) {
+    Array<int, 3> array{1, 2, 3};
+    
+    // Testing operator[] bounds
+    EXPECT_NO_THROW(static_cast<void>(array[0]));
+    EXPECT_NO_THROW(static_cast<void>(array[2]));
+    EXPECT_THROW(static_cast<void>(array[3]), std::out_of_range);
+}
+
+TEST_F(ArrayTest, ComplexTypeOperations) {
+    struct ComplexType {
+        std::string data;
+        int value;
+        
+        ComplexType() : data("default"), value(0) {}
+        ComplexType(const std::string& d, int v) : data(d), value(v) {}
+    };
+    
+    Array<ComplexType, 2> array;
+    array.add(ComplexType("first", 1));
+    array.add(ComplexType("second", 2));
+    
+    EXPECT_EQ(array[0].data, "first");
+    EXPECT_EQ(array[0].value, 1);
+    EXPECT_EQ(array[1].data, "second");
+    EXPECT_EQ(array[1].value, 2);
 }

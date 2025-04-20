@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <utility>
 #include <algorithm>
+#include <initializer_list>
 
 /**
  * @brief Forward iterator for ArrayQueue container
@@ -139,7 +140,10 @@ template<
     typename ValueType,
     size_t Size,
     typename = std::enable_if_t<(Size > 0)>,
-    typename = std::enable_if_t<std::is_default_constructible_v<ValueType>>
+    typename = std::enable_if_t<
+        std::is_default_constructible_v<ValueType> &&
+        std::is_move_constructible_v<ValueType>
+    >
 >
 class ArrayQueue {
 public:
@@ -159,6 +163,14 @@ private:
 public:
     constexpr explicit ArrayQueue() {
         m_ptr = new value_type[Size]();
+    }
+
+    explicit ArrayQueue(std::initializer_list<value_type> init_list) {
+        if(init_list.size() > Size){
+            throw std::length_error("Initializer list size exceeds stack capacity");
+        }
+        m_ptr = new value_type[Size]{};
+        construct(init_list.begin(), init_list.end());
     }
 
     explicit ArrayQueue(const ArrayQueue& other) {
@@ -201,14 +213,23 @@ public:
             throw std::out_of_range("Queue index out of bounds");
         }
         return m_ptr[(m_front + idx) % Size];
-    }
-
+    }    
+    
     auto enqueue(const value_type& element) -> void {
         if (is_full()) {
             throw std::length_error("Queue is full");
         }
         const size_type rear = (m_front + m_count) % Size;
         m_ptr[rear] = element;
+        ++m_count;
+    }
+
+    auto enqueue(value_type&& element) -> void {
+        if (is_full()) {
+            throw std::length_error("Queue is full");
+        }
+        const size_type rear = (m_front + m_count) % Size;
+        m_ptr[rear] = std::move(element);
         ++m_count;
     }
 
@@ -262,6 +283,24 @@ private:
         std::swap(m_size, other.m_size);
         std::swap(m_front, other.m_front);
         std::swap(m_count, other.m_count);
+    }
+
+    template<typename InputIt,
+             typename = std::enable_if_t<
+                 std::is_convertible_v< 
+                     typename std::iterator_traits<InputIt>::value_type,
+                     value_type
+                 >
+             >
+    >    auto construct(InputIt first, InputIt last) -> void {
+        while (first != last && !is_full()) {
+            if constexpr (std::is_rvalue_reference_v<decltype(*first)>) {
+                enqueue(std::move(*first));
+            } else {
+                enqueue(*first);
+            }
+            ++first;
+        }
     }
 };
 
