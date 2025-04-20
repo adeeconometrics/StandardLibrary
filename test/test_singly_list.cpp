@@ -104,25 +104,27 @@ TEST_F(SinglyListTest, ClearList) {
     EXPECT_EQ(list.size(), 0);
 }
 
-// TEST_F(SinglyListTest, ComplexTypeOperations) {
-//     struct ComplexType {
-//         std::string data;
-//         int value;
+TEST_F(SinglyListTest, ComplexTypeOperations) {
+    struct ComplexType {
+        std::string data;
+        int value;
         
-//         ComplexType(const std::string& d, int v) : data(d), value(v) {}
-//         bool operator==(const ComplexType& other) const {
-//             return data == other.data && value == other.value;
-//         }
-//     };
+        ComplexType() = default;
+        ComplexType(const ComplexType&) = default;
+        ComplexType(const std::string& d, int v) : data(d), value(v) {}
+        bool operator==(const ComplexType& other) const {
+            return data == other.data && value == other.value;
+        }
+    };
     
-//     SinglyList<ComplexType> list;
-//     list.add(ComplexType("first", 1));
-//     list.add(ComplexType("second", 2));
+    SinglyList<ComplexType> list;
+    list.add(ComplexType("first", 1));
+    list.add(ComplexType("second", 2));
     
-//     EXPECT_EQ(list.size(), 2);
-//     EXPECT_EQ(list.top(), (ComplexType("first", 1)));
-//     EXPECT_EQ(list.bottom(), (ComplexType("second", 2)));
-// }
+    EXPECT_EQ(list.size(), 2);
+    EXPECT_EQ(list.top(), (ComplexType("first", 1)));
+    EXPECT_EQ(list.bottom(), (ComplexType("second", 2)));
+}
 
 TEST_F(SinglyListTest, EmptyListOperations) {
     SinglyList<int> list;
