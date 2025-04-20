@@ -6,21 +6,25 @@
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
+#include <iterator>
 
 template <typename T> struct Node final {
   T data;
   Node *next{nullptr}, *prev{nullptr};
-  Node(const T &m_data) : data(m_data) {}
+  explicit Node(const T &m_data) : data(m_data) {}
   Node() = default;
 };
 
-template <typename T> class DoublyList_Iterator {
+template <typename T> 
+class DoublyList_Iterator {
 public:
-    using iterator_category = std::forward_iterator_tag;
+    // Standard iterator type traits
+    using iterator_category = std::bidirectional_iterator_tag;
     using value_type = T;
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
+    using iterator_type = DoublyList_Iterator;
 
 private:
     using node_pointer = Node<T>*;
@@ -28,24 +32,46 @@ private:
 
 public:
     constexpr explicit DoublyList_Iterator(node_pointer ptr = nullptr) noexcept 
-        : m_ptr(ptr) {}
+        : m_ptr(ptr) {}    
 
     auto operator++() noexcept -> DoublyList_Iterator& {
-        m_ptr = m_ptr->next;
+        if (m_ptr != nullptr) {
+            m_ptr = m_ptr->next;
+        }
+        return *this;
+    }    
+    
+    auto operator++(int) noexcept -> DoublyList_Iterator {
+        DoublyList_Iterator temp = *this;
+        ++(*this);
+        return temp;
+    }    
+    
+    auto operator--() -> DoublyList_Iterator& {
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot decrement end iterator");
+        }
+        m_ptr = m_ptr->prev;
         return *this;
     }
 
-    auto operator++(int) noexcept -> DoublyList_Iterator {
-        DoublyList_Iterator temp = *this;
-        m_ptr = m_ptr->next;
+    auto operator--(int) noexcept -> DoublyList_Iterator {
+        auto temp = *this;
+        --(*this);
         return temp;
-    }
-
+    }    
+    
     auto operator*() const -> reference { 
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot dereference end iterator");
+        }
         return m_ptr->data; 
     }
 
     auto operator->() const -> pointer { 
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot dereference end iterator");
+        }
         return &(m_ptr->data); 
     }
 
@@ -58,13 +84,19 @@ public:
     }
 };
 
-template <typename T> class cDoublyList_Iterator {
+template <typename T> 
+class cDoublyList_Iterator {
 public:
-    using iterator_category = std::forward_iterator_tag;
+    // Standard iterator type traits
+    using iterator_category = std::bidirectional_iterator_tag;
     using value_type = T;
     using difference_type = std::ptrdiff_t;
     using pointer = const T*;
     using reference = const T&;
+    using iterator_type = cDoublyList_Iterator;
+
+    // Enable conversion from non-const iterator
+    friend class DoublyList_Iterator<T>;
 
 private:
     using node_pointer = const Node<T>*;
@@ -72,24 +104,44 @@ private:
 
 public:
     constexpr explicit cDoublyList_Iterator(node_pointer ptr = nullptr) noexcept 
-        : m_ptr(ptr) {}
-
-    auto operator++() noexcept -> cDoublyList_Iterator& {
-        m_ptr = m_ptr->next;
+        : m_ptr(ptr) {}    auto operator++() noexcept -> cDoublyList_Iterator& {
+        if (m_ptr != nullptr) {
+            m_ptr = m_ptr->next;
+        }
         return *this;
     }
 
     auto operator++(int) noexcept -> cDoublyList_Iterator {
         cDoublyList_Iterator temp = *this;
-        m_ptr = m_ptr->next;
+        ++(*this);
         return temp;
     }
 
-    auto operator*() const noexcept -> reference { 
-        return m_ptr->data; 
+    auto operator--() -> cDoublyList_Iterator& {
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot decrement end iterator");
+        }
+        m_ptr = m_ptr->prev;
+        return *this;
     }
 
-    auto operator->() const noexcept -> pointer { 
+    auto operator--(int) noexcept -> cDoublyList_Iterator {
+        auto temp = *this;
+        --(*this);
+        return temp;
+    }
+
+    auto operator*() const -> reference { 
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot dereference end iterator");
+        }
+        return m_ptr->data; 
+    }    
+    
+    auto operator->() const -> pointer { 
+        if (m_ptr == nullptr) {
+            throw std::out_of_range("Cannot dereference end iterator");
+        }
         return &(m_ptr->data); 
     }
 
@@ -304,24 +356,39 @@ public:    constexpr DoublyList() noexcept = default;
         return m_size == 0; 
     }
 
-private:
-  void remove_front() {
-    Node<T> *ptr = m_front;
-    m_front = m_front->next;
+private: 
 
-    delete ptr;
-    ptr = nullptr;
-    m_size -= 1;
-  }
+    auto remove_front() -> void {
+        if (m_front == nullptr) return;
+        
+        Node<T>* temp = m_front;
+        m_front = m_front->next;
+        
+        if (m_front != nullptr) {
+            m_front->prev = nullptr;
+        } else {
+            m_back = nullptr;
+        }
+        
+        delete temp;
+        --m_size;
+    }
 
-  void remove_back() {
-    Node<T> *ptr = m_back;
-    m_back = m_back->prev;
-
-    delete ptr;
-    ptr = nullptr;
-    m_size -= 1;
-  }
+    auto remove_back() -> void {
+        if (m_back == nullptr) return;
+        
+        Node<T>* temp = m_back;
+        m_back = m_back->prev;
+        
+        if (m_back != nullptr) {
+            m_back->next = nullptr;
+        } else {
+            m_front = nullptr;
+        }
+        
+        delete temp;
+        --m_size;
+    }
     auto swap(DoublyList& other) noexcept -> void {
         using std::swap;
         swap(m_size, other.m_size);

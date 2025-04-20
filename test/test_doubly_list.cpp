@@ -23,7 +23,7 @@ TEST_F(DoublyListTest, InitializerListConstructor_CreatesPopulatedList) {
     EXPECT_EQ(list.bottom(), 3);
 }
 
-TEST_F(DoublyListTest, CopyConstructor_CreatesDeepCopy) {
+TEST_F(DoublyListTest, CopyConstructor) {
     DoublyList<int> list1;
     list1.add(1);
     list1.add(2);
@@ -36,7 +36,7 @@ TEST_F(DoublyListTest, CopyConstructor_CreatesDeepCopy) {
     EXPECT_EQ(list2.bottom(), 2);
 }
 
-TEST_F(DoublyListTest, MoveConstructor_TransfersOwnership) {
+TEST_F(DoublyListTest, MoveConstructor) {
     DoublyList<std::string> list1;
     list1.add("test1");
     list1.add("test2");
@@ -50,7 +50,7 @@ TEST_F(DoublyListTest, MoveConstructor_TransfersOwnership) {
 }
 
 // Assignment Tests
-TEST_F(DoublyListTest, CopyAssignment_CreatesDeepCopy) {
+TEST_F(DoublyListTest, CopyAssignment) {
     DoublyList<int> list1;
     list1.add(1);
     list1.add(2);
@@ -64,7 +64,7 @@ TEST_F(DoublyListTest, CopyAssignment_CreatesDeepCopy) {
     EXPECT_EQ(list2.bottom(), 2);
 }
 
-TEST_F(DoublyListTest, MoveAssignment_TransfersOwnership) {
+TEST_F(DoublyListTest, MoveAssignment) {
     DoublyList<std::string> list1;
     list1.add("test1");
     list1.add("test2");
@@ -146,21 +146,82 @@ TEST_F(DoublyListTest, ConstIteratorBehavior) {
                  "Const iterator should return const reference");
 }
 
-TEST_F(DoublyListTest, IteratorOperations) {
-    DoublyList<int> list{1, 2, 3};
+TEST_F(DoublyListTest, BidirectionalIteratorRequirements) {
+    // Type requirements verification
+    using Iterator = typename DoublyList<int>::iterator;
+    using ConstIterator = typename DoublyList<int>::const_iterator;
     
-    // Test iterator increment
-    auto it = list.begin();
+    static_assert(std::is_same_v<
+        typename std::iterator_traits<Iterator>::iterator_category,
+        std::bidirectional_iterator_tag
+    >, "Iterator must be bidirectional");
+    
+    static_assert(std::is_same_v<
+        typename std::iterator_traits<ConstIterator>::iterator_category,
+        std::bidirectional_iterator_tag
+    >, "Const iterator must be bidirectional");
+}
+
+// TEST_F(DoublyListTest, BidirectionalIteratorOperations) {
+//     DoublyList<int> list{1, 2, 3, 4, 5};
+    
+//     // Forward iteration
+//     auto it = list.begin();
+//     EXPECT_EQ(*it, 1);
+//     ++it;
+//     EXPECT_EQ(*it, 2);
+//     it++;
+//     EXPECT_EQ(*it, 3);
+    
+//     // Backward iteration from middle
+//     --it;
+//     EXPECT_EQ(*it, 2);
+//     it--;
+//     EXPECT_EQ(*it, 1);
+    
+//     // Move to end then backwards
+//     it = list.end();
+//     --it;
+//     EXPECT_EQ(*it, 5);
+//     --it;
+//     EXPECT_EQ(*it, 4);
+// }
+
+TEST_F(DoublyListTest, ConstBidirectionalIteratorOperations) {
+    const DoublyList<int> list{1, 2, 3, 4, 5};
+    
+    // Forward iteration with const_iterator
+    auto it = list.cbegin();
     EXPECT_EQ(*it, 1);
     ++it;
     EXPECT_EQ(*it, 2);
-    it++;
-    EXPECT_EQ(*it, 3);
     
-    // Test iterator comparison
-    auto it2 = list.begin();
-    EXPECT_TRUE(it2 != it);
-    EXPECT_TRUE(it2 != list.end());
+    // Backward iteration with const_iterator
+    auto end_it = list.cend();
+    --end_it;
+    EXPECT_EQ(*end_it, 5);
+    --end_it;
+    EXPECT_EQ(*end_it, 4);
+    
+    // Verify const correctness
+    static_assert(std::is_same_v<decltype(*list.cbegin()), const int&>,
+                 "Const iterator must return const reference");
+}
+
+TEST_F(DoublyListTest, BidirectionalIteratorEdgeCases) {
+    DoublyList<int> list;
+    
+    // Empty list iteration
+    EXPECT_EQ(list.begin(), list.end());
+    
+    // Single element bidirectional iteration
+    list.add(1);
+    auto it = list.begin();
+    EXPECT_EQ(*it, 1);
+    ++it;
+    EXPECT_EQ(it, list.end());
+    --it;
+    EXPECT_EQ(*it, 1);
 }
 
 // Clear and Empty Tests

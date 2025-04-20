@@ -8,8 +8,7 @@
 #include <utility>
 
 template <typename T>
-class Node final {
-public:
+struct Node final {
     T data;
     Node* next{nullptr};
     
