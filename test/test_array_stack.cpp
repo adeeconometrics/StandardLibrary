@@ -119,14 +119,14 @@ TEST_F(ArrayStackTest, IteratorTraversal) {
 }
 
 TEST_F(ArrayStackTest, ConstIteratorTraversal) {
-    for(int i = 0; i < 3; ++i) {
+    for(std::size_t i = 0; i < 3; ++i) {
         int_stack.push(i);
     }
     
     const auto& const_stack = int_stack;
     int expected = 0;
-    for(const auto& value : const_stack) {
-        EXPECT_EQ(value, expected++);
+    for(auto it = const_stack.cbegin(); it != const_stack.cend(); ++it) {
+        EXPECT_EQ(*it, expected++);
     }
 }
 
