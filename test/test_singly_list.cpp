@@ -27,6 +27,8 @@ TEST_F(SinglyListTest, CopyConstructor) {
     list1.add(2);
     
     SinglyList<int> list2(list1);
+    list1.add(3);
+
     EXPECT_EQ(list2.size(), 2);
     EXPECT_EQ(list2.top(), 1);
     EXPECT_EQ(list2.bottom(), 2);
@@ -38,6 +40,7 @@ TEST_F(SinglyListTest, MoveConstructor) {
     list1.add("test2");
     
     SinglyList<std::string> list2(std::move(list1));
+    EXPECT_TRUE(list1.is_empty());
     EXPECT_EQ(list2.size(), 2);
     EXPECT_EQ(list2.top(), "test1");
     EXPECT_EQ(list2.bottom(), "test2");
