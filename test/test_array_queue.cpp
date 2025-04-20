@@ -153,21 +153,22 @@ TEST_F(ArrayQueueTest, MixedOperations) {
     }
 }
 
-// TEST_F(ArrayQueueTest, CustomType) {
-//     struct MoveOnlyType {
-//         int value;
-//         MoveOnlyType(int v) : value(v) {}
-//         MoveOnlyType(const MoveOnlyType&) = delete;
-//         MoveOnlyType& operator=(const MoveOnlyType&) = delete;
-//         MoveOnlyType(MoveOnlyType&&) = default;
-//         MoveOnlyType& operator=(MoveOnlyType&&) = default;
-//     };
+TEST_F(ArrayQueueTest, CustomType) {
+    struct MoveOnlyType {
+        int value;
+        MoveOnlyType(): value(){}
+        MoveOnlyType(int v) : value(v) {}
+        MoveOnlyType(const MoveOnlyType&) = delete;
+        MoveOnlyType& operator=(const MoveOnlyType&) = delete;
+        MoveOnlyType(MoveOnlyType&&) = default;
+        MoveOnlyType& operator=(MoveOnlyType&&) = default;
+    };
     
-//     ArrayQueue<MoveOnlyType, 2> queue;
-//     queue.enqueue(MoveOnlyType(1));
-//     queue.enqueue(MoveOnlyType(2));
+    ArrayQueue<MoveOnlyType, 2> queue;
+    queue.enqueue((MoveOnlyType(1)));
+    queue.enqueue(MoveOnlyType(2));
     
-//     EXPECT_EQ(queue.top().value, 1);
-//     queue.dequeue();
-//     EXPECT_EQ(queue.top().value, 2);
-// }
+    EXPECT_EQ(queue.top().value, 1);
+    queue.dequeue();
+    EXPECT_EQ(queue.top().value, 2);
+}
