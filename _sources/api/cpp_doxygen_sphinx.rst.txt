@@ -8,3 +8,9 @@ Array API
 
 .. doxygenclass:: ArrayQueue
    :project: C++ Sphinx Doxygen Breathe
+
+.. doxygenclass:: ArrayStack
+   :project: C++ Sphinx Doxygen Breathe
+
+.. doxygenclass:: ArrayDeque
+   :project: C++ Sphinx Doxygen Breathe
