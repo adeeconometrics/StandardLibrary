@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <utility>
 #include <algorithm>
+#include <initializer_list>
 
 /**
  * @brief Forward iterator for ArrayQueue container
@@ -161,6 +162,14 @@ public:
         m_ptr = new value_type[Size]();
     }
 
+    explicit ArrayQueue(std::initializer_list<value_type> init_list) {
+        if(init_list.size() > Size){
+            throw std::length_error("Initializer list size exceeds stack capacity");
+        }
+        m_ptr = new value_type[Size]{};
+        construct(init_list.begin(), init_list.end());
+    }
+
     explicit ArrayQueue(const ArrayQueue& other) {
         m_ptr = new value_type[Size];
         m_front = other.m_front;
@@ -262,6 +271,21 @@ private:
         std::swap(m_size, other.m_size);
         std::swap(m_front, other.m_front);
         std::swap(m_count, other.m_count);
+    }
+
+    template<typename InputIt,
+             typename = std::enable_if_t<
+                 std::is_convertible_v< 
+                     typename std::iterator_traits<InputIt>::value_type,
+                     value_type
+                 >
+             >
+    >
+    auto construct(InputIt first, InputIt last) -> void {
+        while (first != last && !is_full()) {
+            enqueue(*first);
+            ++first;
+        }
     }
 };
 

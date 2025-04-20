@@ -199,21 +199,6 @@ public:
         m_data = new value_type[Size]{};
     }
 
-    template<typename InputIt,
-             typename = std::enable_if_t<
-                 std::is_convertible_v<
-                     typename std::iterator_traits<InputIt>::value_type,
-                     value_type
-                 >
-             >
-    >
-    auto construct(InputIt first, InputIt last) -> void {
-        while (first != last && !is_full()) {
-            push(*first);
-            ++first;
-        }
-    }
-
     explicit ArrayStack(std::initializer_list<value_type> init_list) {
         if (init_list.size() > Size) {
             throw std::length_error("Initializer list size exceeds stack capacity");
@@ -318,6 +303,21 @@ private:
         using std::swap;
         swap(m_data, other.m_data);
         swap(m_top, other.m_top);
+    }
+
+    template<typename InputIt,
+             typename = std::enable_if_t<
+                 std::is_convertible_v< 
+                     typename std::iterator_traits<InputIt>::value_type,
+                     value_type
+                 >
+             >
+    >
+    auto construct(InputIt first, InputIt last) -> void {
+        while (first != last && !is_full()) {
+            push(*first);
+            ++first;
+        }
     }
 };
 
