@@ -14,3 +14,12 @@ Array API
 
 .. doxygenclass:: ArrayDeque
    :project: C++ Sphinx Doxygen Breathe
+
+List API
+==============
+
+.. doxygenclass:: SinglyList
+   :project: C++ Sphinx Doxygen Breathe
+
+.. doxygenclass:: DoublyList
+   :project: C++ Sphinx Doxygen Breathe
