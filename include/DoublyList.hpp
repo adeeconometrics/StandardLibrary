@@ -186,7 +186,6 @@ public:
  * - void add_front(const T& data) = O(1)
  * - void add_back(const T& data) = O(1)
  * - void remove(const T& data)
- * - void display() = O(n)
  * - void clear() = O(n)
  * - size_t size() = O(1)
  * - T top() = O(1)

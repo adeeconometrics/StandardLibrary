@@ -183,7 +183,7 @@ TEST_F(DoublyListTest, BidirectionalIteratorOperations) {
   // Move to end then backwards
   it = list.end();
   --it;
-  EXPECT_EQ(*it, 5);
+  EXPECT_EQ(*(it), 5);
   --it;
   EXPECT_EQ(*it, 4);
 }

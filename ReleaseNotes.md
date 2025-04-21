@@ -1,5 +1,13 @@
 # Release Notes:
 
+## v0.0.2a
+
+- Added the `SinglyList` and `DoublyList` implementation
+- Created comprehensive test suite for `SinglyList` and `DoublyList`
+- Fixed issue with bidirectional iterators for doubly list
+- Cleaned entire codebase with Clang Format
+- Introduced new technique for handling `operator--` and `operator--(int)` in iterators with `IteratorProxy`
+- Updated documentation with current List APIs
 
 ## v0.0.2
 
