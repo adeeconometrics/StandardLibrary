@@ -163,30 +163,30 @@ TEST_F(DoublyListTest, BidirectionalIteratorRequirements) {
       "Const iterator must be bidirectional");
 }
 
-// TEST_F(DoublyListTest, BidirectionalIteratorOperations) {
-//     DoublyList<int> list{1, 2, 3, 4, 5};
+TEST_F(DoublyListTest, BidirectionalIteratorOperations) {
+  DoublyList<int> list{1, 2, 3, 4, 5};
 
-//     // Forward iteration
-//     auto it = list.begin();
-//     EXPECT_EQ(*it, 1);
-//     ++it;
-//     EXPECT_EQ(*it, 2);
-//     it++;
-//     EXPECT_EQ(*it, 3);
+  // Forward iteration
+  auto it = list.begin();
+  EXPECT_EQ(*it, 1);
+  ++it;
+  EXPECT_EQ(*it, 2);
+  it++;
+  EXPECT_EQ(*it, 3);
 
-//     // Backward iteration from middle
-//     --it;
-//     EXPECT_EQ(*it, 2);
-//     it--;
-//     EXPECT_EQ(*it, 1);
+  // Backward iteration from middle
+  --it;
+  EXPECT_EQ(*it, 2);
+  it--;
+  EXPECT_EQ(*it, 1);
 
-//     // Move to end then backwards
-//     it = list.end();
-//     --it;
-//     EXPECT_EQ(*it, 5);
-//     --it;
-//     EXPECT_EQ(*it, 4);
-// }
+  // Move to end then backwards
+  it = list.end();
+  --it;
+  EXPECT_EQ(*it, 5);
+  --it;
+  EXPECT_EQ(*it, 4);
+}
 
 TEST_F(DoublyListTest, ConstBidirectionalIteratorOperations) {
   const DoublyList<int> list{1, 2, 3, 4, 5};

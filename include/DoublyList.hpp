@@ -14,6 +14,65 @@ template <typename T> struct Node final {
   Node() = default;
 };
 
+template <typename T> class IteratorProxy final {
+private:
+  using node_type =
+      std::conditional_t<std::is_const_v<T>, const Node<std::remove_const_t<T>>,
+                         Node<T>>;
+  node_type *m_current;
+  node_type *m_last_valid;
+
+public:
+  constexpr explicit IteratorProxy(node_type *current = nullptr,
+                                   node_type *last = nullptr) noexcept
+      : m_current(current), m_last_valid(last) {}
+
+  [[nodiscard]] auto current() const noexcept -> Node<T> * { return m_current; }
+
+  [[nodiscard]] auto last_valid() const noexcept -> Node<T> * {
+    return m_last_valid;
+  }
+
+  auto is_end() const noexcept -> bool { return m_current == nullptr; }
+
+  auto move_forward() -> void {
+    if (m_current != nullptr) {
+      m_last_valid = m_current;
+      m_current = m_current->next;
+    }
+  }
+
+  auto move_backward() -> void {
+    if (m_current == nullptr && m_last_valid != nullptr) {
+      m_current = m_last_valid;
+    } else if (m_current != nullptr && m_current->prev != nullptr) {
+      m_current = m_current->prev;
+    }
+  }
+  [[nodiscard]] auto data() const
+      -> std::conditional_t<std::is_const_v<T>, const std::remove_const_t<T> &,
+                            T &> {
+    if (m_current == nullptr) {
+      throw std::out_of_range("Cannot dereference end iterator");
+    }
+    return m_current->data;
+  }
+  auto operator==(const IteratorProxy &other) const noexcept -> bool {
+    return m_current == other.m_current;
+  }
+
+  auto operator==(std::nullptr_t) const noexcept -> bool {
+    return m_current == nullptr;
+  }
+};
+
+// Non-member operator== to handle nullptr on the left side
+template <typename T>
+auto operator==(std::nullptr_t, const IteratorProxy<T> &proxy) noexcept
+    -> bool {
+  return proxy == nullptr;
+}
+
 template <typename T> class DoublyList_Iterator {
 public:
   // Standard iterator type traits
@@ -25,17 +84,17 @@ public:
   using iterator_type = DoublyList_Iterator;
 
 private:
-  using node_pointer = Node<T> *;
-  node_pointer m_ptr;
+  IteratorProxy<T> m_proxy;
 
 public:
-  constexpr explicit DoublyList_Iterator(node_pointer ptr = nullptr) noexcept
-      : m_ptr(ptr) {}
+  constexpr explicit DoublyList_Iterator(Node<T> *current = nullptr,
+                                         Node<T> *last = nullptr) noexcept
+      : m_proxy(current, last) {}
   auto operator++() -> DoublyList_Iterator & {
-    if (m_ptr == nullptr) {
+    if (m_proxy == nullptr) {
       throw std::out_of_range("Cannot increment end iterator");
     }
-    m_ptr = m_ptr->next;
+    m_proxy.move_forward();
     return *this;
   }
 
@@ -44,17 +103,8 @@ public:
     ++(*this);
     return temp;
   }
-
   auto operator--() -> DoublyList_Iterator & {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range(
-          "Cannot decrement end iterator - the list is empty");
-    }
-    // If we're at the beginning, we can't go back further
-    if (m_ptr->prev == nullptr) {
-      throw std::out_of_range("Cannot decrement begin iterator");
-    }
-    m_ptr = m_ptr->prev;
+    m_proxy.move_backward();
     return *this;
   }
 
@@ -63,23 +113,12 @@ public:
     --(*this);
     return temp;
   }
+  auto operator*() const -> reference { return m_proxy.data(); }
 
-  auto operator*() const -> reference {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range("Cannot dereference end iterator");
-    }
-    return m_ptr->data;
-  }
-
-  auto operator->() const -> pointer {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range("Cannot dereference end iterator");
-    }
-    return &(m_ptr->data);
-  }
+  auto operator->() const -> pointer { return &(m_proxy.data()); }
 
   auto operator==(const DoublyList_Iterator &other) const noexcept -> bool {
-    return m_ptr == other.m_ptr;
+    return m_proxy == other.m_proxy;
   }
 
   auto operator!=(const DoublyList_Iterator &other) const noexcept -> bool {
@@ -101,18 +140,14 @@ public:
   friend class DoublyList_Iterator<T>;
 
 private:
-  using node_pointer = const Node<T> *;
-  node_pointer m_ptr;
+  IteratorProxy<const T> m_proxy;
 
 public:
-  constexpr explicit cDoublyList_Iterator(node_pointer ptr = nullptr) noexcept
-      : m_ptr(ptr) {}
-
+  constexpr explicit cDoublyList_Iterator(
+      const Node<T> *current = nullptr, const Node<T> *last = nullptr) noexcept
+      : m_proxy(current, last) {}
   auto operator++() -> cDoublyList_Iterator & {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range("Cannot increment end iterator");
-    }
-    m_ptr = m_ptr->next;
+    m_proxy.move_forward();
     return *this;
   }
 
@@ -123,15 +158,7 @@ public:
   }
 
   auto operator--() -> cDoublyList_Iterator & {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range(
-          "Cannot decrement end iterator - the list is empty");
-    }
-    // If we're at the beginning, we can't go back further
-    if (m_ptr->prev == nullptr) {
-      throw std::out_of_range("Cannot decrement begin iterator");
-    }
-    m_ptr = m_ptr->prev;
+    m_proxy.move_backward();
     return *this;
   }
 
@@ -140,23 +167,12 @@ public:
     --(*this);
     return temp;
   }
+  auto operator*() const -> reference { return m_proxy.data(); }
 
-  auto operator*() const -> reference {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range("Cannot dereference end iterator");
-    }
-    return m_ptr->data;
-  }
-
-  auto operator->() const -> pointer {
-    if (m_ptr == nullptr) {
-      throw std::out_of_range("Cannot dereference end iterator");
-    }
-    return &(m_ptr->data);
-  }
+  auto operator->() const -> pointer { return &(m_proxy.data()); }
 
   auto operator==(const cDoublyList_Iterator &other) const noexcept -> bool {
-    return m_ptr == other.m_ptr;
+    return m_proxy == other.m_proxy;
   }
 
   auto operator!=(const cDoublyList_Iterator &other) const noexcept -> bool {
@@ -334,25 +350,24 @@ public:
     }
     return m_back->data;
   }
+  auto begin() noexcept -> iterator { return iterator(m_front, nullptr); }
 
-  auto begin() noexcept -> iterator { return iterator(m_front); }
-
-  auto end() noexcept -> iterator { return iterator(nullptr); }
+  auto end() noexcept -> iterator { return iterator(nullptr, m_back); }
 
   auto begin() const noexcept -> const_iterator {
-    return const_iterator(m_front);
+    return const_iterator(m_front, nullptr);
   }
 
   auto end() const noexcept -> const_iterator {
-    return const_iterator(nullptr);
+    return const_iterator(nullptr, m_back);
   }
 
   auto cbegin() const noexcept -> const_iterator {
-    return const_iterator(m_front);
+    return const_iterator(m_front, nullptr);
   }
 
   auto cend() const noexcept -> const_iterator {
-    return const_iterator(nullptr);
+    return const_iterator(nullptr, m_back);
   }
 
   [[nodiscard]] auto is_empty() const noexcept -> bool { return m_size == 0; }
