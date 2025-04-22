@@ -73,7 +73,7 @@ make
 
 3. Run tests:
 ```bash
-./run_tests
+ctest --output-on-failure --verbose
 ```
 
 ## Contributing

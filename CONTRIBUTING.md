@@ -16,7 +16,7 @@ Welcome to our project! This guide will help you understand how to contribute ef
 - C++17 compatible compiler
 - CMake (3.15 or higher)
 - Git
-- GoogleTest framework (included as submodule)
+- GoogleTest framework (included as submodule; refer to [CI configuration](.github/workflows/c-cpp.yml))
 
 ### Setting Up Your Development Environment
 1. Fork the repository
