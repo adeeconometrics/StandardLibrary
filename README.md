@@ -78,7 +78,7 @@ make
 
 ## Contributing
 
-See [CONTRIBUTING.md] for detailed guidelines on:
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on:
 - Coding standards
 - Documentation requirements
 - Testing requirements
